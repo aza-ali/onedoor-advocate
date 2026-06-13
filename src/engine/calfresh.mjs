@@ -9,7 +9,12 @@
 // Safety posture: this returns an eligibility SCREENING ESTIMATE for education/navigation,
 // never an official determination. Every result carries the disclaimer + a navigator branch.
 
-import RULES from "../../config/rules.json" with { type: "json" };
+// Load the cited ruleset at runtime (no JSON import-attribute, so this bundles cleanly under
+// Next.js/webpack AND runs under plain Node for scripts/eval.mjs). process.cwd() is the repo
+// root for both the eval (run from root) and the Next server (Cloud Run app root).
+import { readFileSync } from "node:fs";
+import path from "node:path";
+const RULES = JSON.parse(readFileSync(path.join(process.cwd(), "config", "rules.json"), "utf8"));
 
 const DISCLAIMER = "Screening estimate, not an official eligibility determination.";
 
