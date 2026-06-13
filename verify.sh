@@ -5,7 +5,7 @@
 # flip) asserts against the captured-today artifact so a dropped on-stage dial keeps GREEN.
 set -uo pipefail
 cd "$(dirname "$0")"
-BASE="${ONEDOOR_BASE:-http://127.0.0.1:8787}"
+BASE="${ONEDOOR_BASE:-http://127.0.0.1:3000}"
 PY=python3
 LOG=session_log.md
 PASS=0; FAIL=0
@@ -70,7 +70,7 @@ mcp_os=[t['outputSchema'] for t in tl['result']['tools'] if t['name']=='screen_e
 a2a_os=[s['outputSchema'] for s in ac['skills'] if s['id']=='screen_eligibility'][0]
 print(mcp_os==a2a_os)
 " 2>/dev/null)
-IMPORTS=$(grep -rl "onedoor.schema.json" src | wc -l | tr -d ' ')
+IMPORTS=$(grep -rl "onedoor.schema.json" lib app src | wc -l | tr -d ' ')
 [ "$SAME" = "True" ] && [ "${IMPORTS:-0}" -ge 1 ] && ok "E4 single-source schema: MCP + A2A serve the SAME outputSchema (one file, $IMPORTS importers; one edit breaks both)" || no "E4 single-source ($SAME)"
 # E7 Rx compliance: Medicaid copay-card payload must be rejected; commercial allowed
 RXM=$(curl -s -m8 -XPOST "$BASE/mcp" -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"rx_savings_paths","arguments":{"drug":"atorvastatin","coverage_type":"medicaid"}}}')
