@@ -9,7 +9,7 @@ function clean(text: string): string {
     .replace(/\*\*(.+?)\*\*/g, "$1")        // **bold** -> bold
     .replace(/\*(.+?)\*/g, "$1")            // *italic* -> italic
     .replace(/__(.+?)__/g, "$1")
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, "$1") // [text](url) -> text
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, "$1 ($2)") // [text](url) -> text (url), keep the link
     .replace(/^#{1,6}\s+/gm, "")            // # headings
     .replace(/^\s*[-*]\s+/gm, "")           // - bullets
     .trim();

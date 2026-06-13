@@ -21,10 +21,10 @@ export default function Outputs({ result }: { result: ScreenResult | null }) {
   const eligible = result.status === "likely_eligible";
 
   return (
-    <div className="answer">
+    <div className="answer" role="region" aria-live="polite" aria-label="Your benefits result">
       {/* 1 — the verdict (the only card with a dollar figure) */}
       <section className="card hero">
-        <div className="card-kicker"><span className="dot" />{p.sec_qualify || "What you likely qualify for"}</div>
+        <h2 className="card-kicker"><span className="dot" aria-hidden />{p.sec_qualify || "What you likely qualify for"}</h2>
         <div className="verdict-row">
           <span className={pillClass(result.status)}>{p.verdict_label || result.status}</span>
           {p.amount != null && (
@@ -51,7 +51,7 @@ export default function Outputs({ result }: { result: ScreenResult | null }) {
       {/* 2 — other programs (cited, never a dollar figure) */}
       {Array.isArray(p.recs) && p.recs.length > 0 && (
         <section className="card">
-          <div className="card-kicker"><span className="dot" />{p.sec_also || "You may also qualify for"}</div>
+          <h2 className="card-kicker"><span className="dot" aria-hidden />{p.sec_also || "You may also qualify for"}</h2>
           <div className="recs">
             {p.recs.map((r: any, i: number) => (
               <div className="rec" key={i}>
@@ -67,7 +67,7 @@ export default function Outputs({ result }: { result: ScreenResult | null }) {
       {/* 3 — bring + ask (the advocate prep), only when eligible */}
       {eligible && Array.isArray(p.bring) && (
         <section className="card">
-          <div className="card-kicker"><span className="dot" />{p.sec_bring || "What to bring to your interview"}</div>
+          <h2 className="card-kicker"><span className="dot" aria-hidden />{p.sec_bring || "What to bring to your interview"}</h2>
           <ul className="checklist">
             {p.bring.map((b: string, i: number) => (
               <li key={i}><span className="ic" aria-hidden>✓</span><span>{b}</span></li>
@@ -77,7 +77,7 @@ export default function Outputs({ result }: { result: ScreenResult | null }) {
       )}
       {eligible && Array.isArray(p.ask) && (
         <section className="card">
-          <div className="card-kicker"><span className="dot" />{p.sec_ask || "What they will ask you"}</div>
+          <h2 className="card-kicker"><span className="dot" aria-hidden />{p.sec_ask || "What they will ask you"}</h2>
           <ul className="checklist">
             {p.ask.map((a: string, i: number) => (
               <li key={i}><span className="ic" aria-hidden>?</span><span>{a}</span></li>

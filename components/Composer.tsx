@@ -8,6 +8,9 @@ type Props = {
   onExtracted: (fields: Record<string, any>) => void;
   busy: boolean;
   placeholder?: string;
+  attachLabel?: string;
+  sendLabel?: string;
+  lang?: string;
 };
 
 const MAX_TEXTAREA_PX = 132;
@@ -15,7 +18,7 @@ const MAX_TEXTAREA_PX = 132;
 // Sticky bottom composer: a growable textarea, a thumb-sized send button, and an attach
 // toggle that reveals the document Uploader. One-handed phone use (large tap targets,
 // safe-area inset, >=16px font to avoid iOS focus-zoom).
-export default function Composer({ onSend, onExtracted, busy, placeholder = "Type your answer" }: Props) {
+export default function Composer({ onSend, onExtracted, busy, placeholder = "Type your answer", attachLabel = "Attach a document", sendLabel = "Send message", lang = "en" }: Props) {
   const [text, setText] = useState("");
   const [showUploader, setShowUploader] = useState(false);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
@@ -43,10 +46,10 @@ export default function Composer({ onSend, onExtracted, busy, placeholder = "Typ
   return (
     <div>
       {showUploader && (
-        <div className="upanel"><Uploader onExtracted={handleExtracted} /></div>
+        <div className="upanel"><Uploader onExtracted={handleExtracted} lang={lang} /></div>
       )}
       <div className="composer">
-        <button type="button" className="icon-btn" aria-label="Attach a document" aria-pressed={showUploader} onClick={() => setShowUploader((s) => !s)}>
+        <button type="button" className="icon-btn" aria-label={attachLabel} aria-pressed={showUploader} onClick={() => setShowUploader((s) => !s)}>
           <span aria-hidden style={{ fontSize: 22, lineHeight: 1 }}>{showUploader ? "×" : "+"}</span>
         </button>
         <textarea
@@ -56,10 +59,11 @@ export default function Composer({ onSend, onExtracted, busy, placeholder = "Typ
           onKeyDown={onKeyDown}
           rows={1}
           placeholder={placeholder}
+          aria-label={placeholder}
           enterKeyHint="send"
         />
-        <button type="button" className="send-btn" aria-label="Send message" onClick={submit} disabled={!canSend}>
-          <span aria-hidden style={{ fontSize: 17, transform: "translateX(1px)" }}>&#10148;</span>
+        <button type="button" className="send-btn" aria-label={sendLabel} onClick={submit} disabled={!canSend}>
+          <span aria-hidden className="send-glyph">&#10148;</span>
         </button>
       </div>
     </div>
