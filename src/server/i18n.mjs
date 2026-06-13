@@ -147,7 +147,6 @@ function recKey(program = "") {
 export function localize(result, lang) {
   const t = DICT[lang] || DICT.en;
   const c = result.computation || {};
-  const eligible = result.status === "likely_eligible";
   const showDollar = result.monthly_benefit != null && result.status !== "likely_not_eligible";
 
   const why = [];
@@ -169,16 +168,10 @@ export function localize(result, lang) {
 
   const nav = result.navigator_fallback || {};
 
+  // The localized generative-answer CARD (the only consumer is components/Outputs.tsx).
   return {
     dir: t.dir,
     lang,
-    tagline: t.tagline,
-    greeting: t.greeting,
-    placeholder: t.placeholder,
-    send: t.send,
-    attach: t.attach,
-    checking: t.checking,
-    // the generative answer card
     verdict_label: t.verdict[result.status] || result.status,
     status: result.status,
     amount: showDollar ? result.monthly_benefit : null,
@@ -191,7 +184,6 @@ export function localize(result, lang) {
     bring: t.bring,
     ask: t.ask,
     recs,
-    next_step: result.fallback?.url || nav.url ? { phone: nav.phone, url: nav.url } : null,
     disclaimer: t.disclaimer,
     talk_navigator: t.talk_navigator,
     navigator: { phone: nav.phone, url: nav.url },

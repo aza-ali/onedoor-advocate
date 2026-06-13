@@ -8,10 +8,11 @@ import Composer from "./Composer";
 import Outputs from "./Outputs";
 
 // Warm advocate greeting that opens the conversation and asks the first question.
+// Mirrors the greeting in src/server/i18n.mjs (single wording, both surfaces).
 const GREETING: Record<string, string> = {
-  en: "Hi, I'm your benefits advocate. I can help you check what programs you may qualify for, like food assistance (SNAP). To start, which county do you live in?",
-  es: "Hola, soy su defensor de beneficios. Puedo ayudarle a revisar para que programas podria calificar, como la ayuda de alimentos (SNAP). Para comenzar, en que condado vive?",
-  fa: "سلام، من مدافع مزایای شما هستم. می‌توانم به شما کمک کنم ببینید واجد شرایط چه برنامه‌هایی هستید، مانند کمک غذایی (SNAP). برای شروع، در کدام شهرستان زندگی می‌کنید؟",
+  en: "Hi, I am your benefits advocate. Tell me a little about your situation and I will check what you may qualify for. To start, which county do you live in?",
+  es: "Hola, soy su defensor de beneficios. Cuénteme un poco sobre su situación y revisaré para qué podría calificar. Para comenzar, ¿en qué condado vive?",
+  fa: "سلام، من مدافع مزایای شما هستم. کمی درباره وضعیت خود بگویید تا بررسی کنم واجد شرایط چه چیزی هستید. برای شروع، در کدام شهرستان زندگی می‌کنید؟",
 };
 
 // The Profile type/contract has no `messages` field and updateProfile/migrate
@@ -43,6 +44,8 @@ function saveMessages(msgs: ChatMessage[]): void {
 const STR = {
   checking: { en: "Checking your eligibility", es: "Revisando su elegibilidad", fa: "در حال بررسی واجد شرایط بودن شما" },
   placeholder: { en: "Type your answer", es: "Escriba su respuesta", fa: "پاسخ خود را بنویسید" },
+  attach: { en: "Attach a document", es: "Adjuntar un documento", fa: "پیوست سند" },
+  send: { en: "Send message", es: "Enviar mensaje", fa: "ارسال پیام" },
   attachedDoc: { en: "I uploaded a document.", es: "Subi un documento.", fa: "یک سند بارگذاری کردم." },
   here: { en: "Here's what I found from it:", es: "Esto es lo que encontre:", fa: "این چیزی است که پیدا کردم:" },
   network: {
@@ -90,6 +93,8 @@ export default function Chat({ lang }: { lang: string }) {
   const hydrated = useRef(false);
   const prevLang = useRef(lang);
   const lastHousehold = useRef<Record<string, any> | null>(null);
+  const langGen = useRef(0); // bumped on each language switch; only the latest commits its card
+  const abortRef = useRef<AbortController | null>(null); // cancels an in-flight chat turn
 
   // Restore prior conversation + last result on first mount; otherwise seed a greeting.
   useEffect(() => {
@@ -101,12 +106,15 @@ export default function Chat({ lang }: { lang: string }) {
       const p = loadProfile();
       if (p?.last_result) lastResult = p.last_result;
       if (p?.household && Object.keys(p.household).length) lastHousehold.current = p.household;
+      // Sync the language ref to the SAVED language so the page's post-mount lang hydration
+      // (en -> saved) is NOT mistaken for a user switch (which would truncate the restored
+      // transcript and fire a spurious billed turn on every reload for non-English users).
+      if (p?.lang) prevLang.current = p.lang;
     } catch {
       // fresh start
     }
     setMessages(restored ?? [{ role: "assistant", content: GREETING[lang] ?? GREETING.en }]);
     if (lastResult) setResult(lastResult);
-    // Greeting language is fixed at first mount; subsequent turns honor the picker.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -142,12 +150,15 @@ export default function Chat({ lang }: { lang: string }) {
       });
 
       let turnResult: ScreenResult | null = null;
+      const ctrl = new AbortController();
+      abortRef.current = ctrl;
 
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: nextMessages, lang, profile: loadProfile() }),
+          signal: ctrl.signal,
         });
 
         if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
@@ -221,10 +232,11 @@ export default function Chat({ lang }: { lang: string }) {
             }
           }
         }
-      } catch {
-        setError(t("network", lang));
+      } catch (err: any) {
+        // A language switch aborts the in-flight turn on purpose; that is not an error.
+        if (err?.name !== "AbortError") setError(t("network", lang));
         setMessages((prev) => {
-          // Drop an empty placeholder assistant bubble on hard failure.
+          // Drop an empty placeholder assistant bubble on failure or cancellation.
           if (assistantIndex >= 0 && prev[assistantIndex]?.content === "") {
             const copy = prev.slice();
             copy.splice(assistantIndex, 1);
@@ -233,9 +245,14 @@ export default function Chat({ lang }: { lang: string }) {
           return prev;
         });
       } finally {
-        setStreaming(false);
-        setChecking(false);
-        setBusy(false);
+        // Only clear busy/streaming if this turn is still the active one. A turn superseded by
+        // a language switch must not flip busy off under the replacement turn that is now running.
+        if (abortRef.current === ctrl) {
+          abortRef.current = null;
+          setStreaming(false);
+          setChecking(false);
+          setBusy(false);
+        }
         // Persist the settled transcript + result.
         setMessages((prev) => {
           persist(prev, turnResult);
@@ -254,6 +271,11 @@ export default function Chat({ lang }: { lang: string }) {
     if (!hydrated.current) { prevLang.current = lang; return; }
     if (prevLang.current === lang) return;
     prevLang.current = lang;
+    const gen = ++langGen.current; // only the newest switch may commit its card / prose
+
+    // Cancel any in-flight turn so a slower old-language answer cannot land on top.
+    abortRef.current?.abort();
+    abortRef.current = null;
 
     // Re-render the answer card in the new language immediately and deterministically:
     // re-screen the known household (math is identical, only the localized presentation
@@ -266,20 +288,22 @@ export default function Chat({ lang }: { lang: string }) {
         body: JSON.stringify({ household: hh, lang }),
       })
         .then((r) => r.json())
-        .then((res) => setResult(res))
+        .then((res) => { if (gen === langGen.current) setResult(res); }) // ignore a stale switch
         .catch(() => {});
     } else {
       setResult(null);
     }
 
-    if (busy) return; // a turn is mid-flight; its answer will already be in the new language
+    // Regenerate the conversational prose in the new language (the agent re-answers). We do this
+    // even if a turn was mid-flight, because we just aborted it.
     const lastUserIdx = messages.map((m) => m.role).lastIndexOf("user");
     if (lastUserIdx === -1) {
       // No question asked yet: simply re-localize the opening greeting.
+      setBusy(false);
+      setStreaming(false);
       setMessages([{ role: "assistant", content: GREETING[lang] ?? GREETING.en }]);
       return;
     }
-    // Regenerate the conversational prose in the new language (the agent re-answers).
     const base = messages.slice(0, lastUserIdx + 1);
     setMessages(base);
     runTurn(base);
@@ -335,7 +359,7 @@ export default function Chat({ lang }: { lang: string }) {
         })}
 
         {checking && (
-          <div className="checking"><span className="spin" aria-hidden />{t("checking", lang)}</div>
+          <div className="checking" role="status" aria-live="polite"><span className="spin" aria-hidden />{t("checking", lang)}</div>
         )}
 
         {error && (
@@ -356,7 +380,7 @@ export default function Chat({ lang }: { lang: string }) {
       </div>
 
       <div className="composer-dock">
-        <Composer onSend={handleSend} onExtracted={handleExtracted} busy={busy} placeholder={t("placeholder", lang)} />
+        <Composer onSend={handleSend} onExtracted={handleExtracted} busy={busy} lang={lang} placeholder={t("placeholder", lang)} attachLabel={t("attach", lang)} sendLabel={t("send", lang)} />
       </div>
     </div>
   );
