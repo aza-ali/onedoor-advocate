@@ -1,3 +1,46 @@
+# Firebase deploy — CURRENT STATUS (updated)
+
+## Done automatically
+- ✅ Dedicated Firebase project created: **`onedoor-advocate`** (console: https://console.firebase.google.com/project/onedoor-advocate/overview)
+- ✅ GitHub repo pushed + ready: **aza-ali/onedoor-advocate** (private, branch `main`)
+- ✅ `apphosting.yaml` verified (key is a Secret Manager reference, RUNTIME, not plaintext)
+
+## Blocked on ONE thing: billing quota
+App Hosting needs the **Blaze** plan, but your only OPEN billing account
+`01AA17-DF3664-9977E1` is **at its project quota** (already billing 5 projects:
+soya-499205, workspaceapihelper, intentional-app-faebe, strovu, github-growth-bot).
+Linking billing to `onedoor-advocate` returns `Cloud billing quota exceeded`, so the
+APIs can't enable yet. (The other 2 billing accounts are closed.)
+
+### Pick ONE to unblock, then run "Resume" below:
+- **A. Free a slot** (fastest): unlink billing from an unused project, e.g.
+  `gcloud billing projects unlink strovu`   (or soya-499205 / github-growth-bot — YOUR call; only if that project is not live)
+- **B. Raise the quota**: request an increase at
+  https://support.google.com/code/contact/billing_quota_increase (takes a bit)
+- **C. Reuse an already-billed project** instead of the dedicated one (e.g. set PROJECT_ID=intentional-app-faebe), at the cost of mixing products.
+
+## Resume (after a billing slot is free) — I can run steps 1-3 for you, you do step 4
+```bash
+PID=onedoor-advocate
+gcloud billing projects link $PID --billing-account=01AA17-DF3664-9977E1
+# 1) enable APIs
+gcloud services enable firebaseapphosting.googleapis.com run.googleapis.com cloudbuild.googleapis.com \
+  secretmanager.googleapis.com developerconnect.googleapis.com artifactregistry.googleapis.com --project $PID
+# 2) create the secret from .env.local WITHOUT printing it
+printf '%s' "$(grep -oE '^ANTHROPIC_API_KEY=.*' .env.local | cut -d= -f2- | tr -d '\"'\''\r\n')" \
+  | gcloud secrets create anthropic-api-key --project $PID --replication-policy=automatic --data-file=-
+# 3) (browser, one time) connect the GitHub repo + create the backend:
+firebase apphosting:backends:create --project $PID
+#    -> choose region, connect aza-ali/onedoor-advocate @ main via Developer Connect
+# 4) grant the backend service account access to the secret (SA exists only after step 3):
+gcloud secrets add-iam-policy-binding anthropic-api-key --project $PID \
+  --member="serviceAccount:firebase-app-hosting-compute@$PID.iam.gserviceaccount.com" \
+  --role=roles/secretmanager.secretAccessor
+# then: git push origin main  -> triggers the rollout. Verify: curl https://<backend-url>/healthz
+```
+
+---
+
 # Deploy to Firebase App Hosting — remaining steps (user handoff)
 
 **Status at handoff (2026-06-13):** The automated, non-interactive setup could **not** safely
