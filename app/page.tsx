@@ -44,6 +44,7 @@ export default function Page() {
     <div className="app">
       <header className="app-header">
         <div className="brand">
+          <span className="mark" aria-hidden>1</span>
           One <b>Door</b> Advocate
         </div>
         <LangSwitcher lang={lang} onChange={handleLangChange} />
