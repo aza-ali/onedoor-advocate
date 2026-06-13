@@ -1,0 +1,29 @@
+{
+  "_note": "Scoped-egress allowlist (D1'). The voice agent may ONLY dial numbers in this list — published county benefits information lines / authorized CBOs that have consented to AI-disclosed informational calls. No applicant cell can ever be dialed; any number not in this list is REFUSED by a deterministic guard before any call is placed.",
+  "allowlist": [
+    {
+      "callee_id": "cdss-calfresh-helpline",
+      "name": "CalFresh Benefits Helpline (CDSS, published statewide information line)",
+      "to": "+18778473663",
+      "callee_is_published_business_line": true,
+      "consent_basis": "published_public_information_line",
+      "topics": ["calfresh_eligibility_rules", "documents_required", "abawd_work_requirement", "noncitizen_eligibility_2026"]
+    },
+    {
+      "callee_id": "sf-hsa-calfresh",
+      "name": "San Francisco Human Services Agency — CalFresh information",
+      "to": "+14155583000",
+      "callee_is_published_business_line": true,
+      "consent_basis": "published_public_information_line",
+      "topics": ["calfresh_eligibility_rules", "county_specific_documents"]
+    },
+    {
+      "callee_id": "211-ca",
+      "name": "211 California (authorized CBO information & referral)",
+      "to": "+12110000000",
+      "callee_is_published_business_line": true,
+      "consent_basis": "authorized_cbo",
+      "topics": ["benefits_navigation"]
+    }
+  ]
+}

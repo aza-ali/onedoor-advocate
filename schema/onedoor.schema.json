@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "1.0.0",
+  "_note": "SINGLE SOURCE OF TRUTH. Imported by the MCP server (/mcp) AND the A2A AgentCard (/.well-known/agent-card.json) AND the A2A consumer by path at runtime. Tampering ONE field here must break BOTH the MCP tools/call validation (E2) and the A2A artifact validation (E5) — proving single source (E4).",
+  "trust_envelope": {
+    "type": "object",
+    "required": ["confidence", "citations", "as_of_date", "disclaimer"],
+    "properties": {
+      "confidence": { "type": "number" },
+      "citations": { "type": "array", "items": { "type": "object", "required": ["source_id", "source_url"], "properties": { "rule": { "type": "string" }, "source_id": { "type": "string" }, "source_url": { "type": "string" }, "paragraph": { "type": "string" }, "verified_at": { "type": "string" } } } },
+      "as_of_date": { "type": "string" },
+      "status_assumptions": { "type": "array", "items": { "type": "string" } },
+      "disclaimer": { "type": "string" }
+    }
+  },
+  "tools": {
+    "screen_eligibility": {
+      "description": "Screen a household for CalFresh eligibility and estimated monthly benefit. Education/navigation only, not an official determination.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["household"],
+        "properties": {
+          "household": {
+            "type": "object",
+            "properties": {
+              "today": { "type": "string" },
+              "county": { "type": "string" },
+              "household_size": { "type": "integer" },
+              "monthly_earned_income": { "type": "number" },
+              "monthly_unearned_income": { "type": "number" },
+              "shelter_cost_monthly": { "type": "number" },
+              "utilities_monthly": { "type": "number" },
+              "dependent_care_monthly": { "type": "number" },
+              "medical_expenses_monthly": { "type": "number" },
+              "members": { "type": "array", "items": { "type": "object" } }
+            }
+          },
+          "lang": { "type": "string", "enum": ["en", "es", "fa"] }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["program", "status", "confidence", "citations", "as_of_date", "disclaimer", "engine_provenance"],
+        "properties": {
+          "program": { "type": "string" },
+          "status": { "type": "string", "enum": ["likely_eligible", "possibly_eligible", "likely_not_eligible", "needs_more_info"] },
+          "monthly_benefit": { "type": ["number", "null"] },
+          "confidence": { "type": "number" },
+          "citations": { "type": "array", "items": { "type": "object", "required": ["source_id", "source_url"] } },
+          "engine_provenance": { "type": "array", "items": { "type": "object", "required": ["rule", "source_id", "paragraph"] } },
+          "as_of_date": { "type": "string" },
+          "status_assumptions": { "type": "array" },
+          "disclaimer": { "type": "string" },
+          "recommendations": { "type": "array" },
+          "fallback": { "type": "object" }
+        }
+      }
+    },
+    "search_programs": {
+      "description": "Search the California benefits shelf (HSDS-3.x service records) by need or keyword.",
+      "inputSchema": { "type": "object", "required": ["query"], "properties": { "query": { "type": "string" }, "need_group": { "type": "string" } } },
+      "outputSchema": {
+        "type": "object",
+        "required": ["services", "as_of_date", "disclaimer"],
+        "properties": {
+          "services": { "type": "array", "items": { "type": "object", "required": ["program", "next_step"], "properties": { "program": { "type": "string" }, "need_group": { "type": "string" }, "one_line": { "type": "string" }, "next_step": { "type": "string" }, "citation": { "type": "object" } } } },
+          "as_of_date": { "type": "string" },
+          "disclaimer": { "type": "string" }
+        }
+      }
+    },
+    "verify_resource": {
+      "description": "Resolve a single high-uncertainty, non-searchable eligibility fact via a live disclosed call to an allowlisted county benefits line / authorized CBO. Returns a call_transcript_ref.",
+      "inputSchema": { "type": "object", "required": ["question", "callee_id"], "properties": { "question": { "type": "string" }, "callee_id": { "type": "string" }, "call_justification": { "type": "string" } } },
+      "outputSchema": {
+        "type": "object",
+        "required": ["field", "value", "verified_at", "method", "call_transcript_ref", "confidence", "citations", "as_of_date", "disclaimer"],
+        "properties": {
+          "field": { "type": "string" },
+          "value": { "type": "string" },
+          "verified_at": { "type": "string" },
+          "method": { "type": "string" },
+          "call_transcript_ref": { "type": "string" },
+          "call_id": { "type": "string" },
+          "quote": { "type": "string" },
+          "confidence": { "type": "number" },
+          "citations": { "type": "array" },
+          "as_of_date": { "type": "string" },
+          "disclaimer": { "type": "string" }
+        }
+      }
+    },
+    "rx_savings_paths": {
+      "description": "Non-clinical prescription cost-pathway matching. Never clinical substitution. Federal-program members (Medicare/Medicaid/TRICARE/VA) are excluded from copay-card paths at the schema level.",
+      "inputSchema": { "type": "object", "required": ["drug", "coverage_type"], "properties": { "drug": { "type": "string" }, "coverage_type": { "type": "string", "enum": ["commercial", "medicare", "medicaid", "tricare", "va", "uninsured"] } } },
+      "outputSchema": {
+        "type": "object",
+        "required": ["non_clinical", "paths", "advice", "as_of_date", "disclaimer"],
+        "properties": {
+          "non_clinical": { "type": "boolean", "const": true },
+          "paths": { "type": "array", "items": { "type": "object", "required": ["kind"], "properties": { "kind": { "type": "string" }, "name": { "type": "string" }, "note": { "type": "string" } } } },
+          "advice": { "type": "string" },
+          "as_of_date": { "type": "string" },
+          "disclaimer": { "type": "string" }
+        }
+      }
+    }
+  }
+}

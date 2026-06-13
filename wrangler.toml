@@ -1,0 +1,12 @@
+name = "onedoor"
+main = "src/server/worker.mjs"
+compatibility_date = "2025-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Secrets (set at deploy time; the app runs fully offline for Tier-1 without them):
+#   wrangler secret put ANTHROPIC_API_KEY      # live Opus reasoning lanes + doc extraction + voice LLM
+#   wrangler secret put VAPI_API_KEY           # the real outbound county-line call
+#   wrangler secret put VAPI_PHONE_NUMBER_ID
+# CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID are wrangler auth env vars (not Worker secrets).
+#
+# Deploy:  wrangler deploy   ->  https://onedoor.<subdomain>.workers.dev   (one URL, all routes)

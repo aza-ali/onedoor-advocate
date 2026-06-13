@@ -1,0 +1,70 @@
+{
+  "stage": "compile (the prime parallel stage)",
+  "n_agents": 12,
+  "max_concurrent": 6,
+  "window_s": 246.3,
+  "base_epoch": 1781381716.0,
+  "agents": [
+    {
+      "agent_id": "compile-max-allotment",
+      "rel_start_s": 0.0,
+      "rel_end_s": 24.0
+    },
+    {
+      "agent_id": "compile-standard-deduction",
+      "rel_start_s": 0.3,
+      "rel_end_s": 21.3
+    },
+    {
+      "agent_id": "compile-earned-income-deduction",
+      "rel_start_s": 0.3,
+      "rel_end_s": 16.3
+    },
+    {
+      "agent_id": "compile-shelter-utilities",
+      "rel_start_s": 0.3,
+      "rel_end_s": 30.3
+    },
+    {
+      "agent_id": "compile-benefit-formula",
+      "rel_start_s": 2.3,
+      "rel_end_s": 25.3
+    },
+    {
+      "agent_id": "compile-gross-income-test",
+      "rel_start_s": 0.3,
+      "rel_end_s": 23.3
+    },
+    {
+      "agent_id": "compile-net-income-test",
+      "rel_start_s": 29.3,
+      "rel_end_s": 49.3
+    },
+    {
+      "agent_id": "compile-ca-bbce",
+      "rel_start_s": 34.3,
+      "rel_end_s": 62.3
+    },
+    {
+      "agent_id": "compile-fpl",
+      "rel_start_s": 38.3,
+      "rel_end_s": 60.3
+    },
+    {
+      "agent_id": "compile-hr1-immigrant",
+      "rel_start_s": 40.3,
+      "rel_end_s": 246.3
+    },
+    {
+      "agent_id": "compile-hr1-abawd",
+      "rel_start_s": 40.3,
+      "rel_end_s": 154.3
+    },
+    {
+      "agent_id": "compile-abawd-waiver-counties",
+      "rel_start_s": 47.3,
+      "rel_end_s": 71.3
+    }
+  ],
+  "honest_statement": "12 Opus 4.8 agents ran with overlapping start/end timestamps; max 6 concurrent within a 246.3s window (capped at min(16,cores-2)). The downstream eligibility pipeline (extract->compute->reason->verify) is serial by data-dependency; fan-out is used where genuinely independent (compile, docs, personas)."
+}

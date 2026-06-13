@@ -1,0 +1,343 @@
+{
+  "ruleset": "calfresh-ca-2026",
+  "today": "2026-06-13",
+  "broken_mode": "categorical",
+  "summary": {
+    "n_total": 16,
+    "independent_oracle_n": 14,
+    "independent_oracle_precision": 0.786,
+    "policyengine_consistency_n": 2,
+    "policyengine_consistency": 1,
+    "coverage_on_answered": 1,
+    "mean_abs_dollar_error": 57.75,
+    "max_abs_dollar_error": 231,
+    "fail_to_pass": "4/6",
+    "pass_to_pass": "10/11",
+    "fail_to_pass_pct": 0.667,
+    "pass_to_pass_regressions": 1,
+    "lambda": {
+      "value": 0.65,
+      "split_seed": 42,
+      "holdout": [
+        "lowincome-3p",
+        "hr1-abawd-nonwaiver-county",
+        "hr1-immigrant-post-enactment"
+      ],
+      "rationale": "Maximizes answered-precision subject to coverage>=0.70 on the 20% holdout; flip-01 + all H.R.1 seams sit above 0.65 so they stay ANSWERED."
+    }
+  },
+  "results": [
+    {
+      "name": "flip-01",
+      "answered": true,
+      "pass": false,
+      "checks": {
+        "status": false,
+        "dollars": false,
+        "flip": false
+      },
+      "dollarErr": 231,
+      "class": "fail_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      },
+      "exp": {
+        "status": "likely_eligible",
+        "benefit": 231
+      }
+    },
+    {
+      "name": "flip-02-2person",
+      "answered": true,
+      "pass": false,
+      "checks": {
+        "status": false,
+        "flip": false
+      },
+      "dollarErr": null,
+      "class": "fail_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "lowincome-3p",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true
+      },
+      "dollarErr": null,
+      "class": "pass_to_pass",
+      "oracle_source": "POLICYENGINE_YAML",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 785
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "zero-income-4p",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "dollars": true
+      },
+      "dollarErr": 0,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 994
+      },
+      "exp": {
+        "status": "likely_eligible",
+        "benefit": 994
+      }
+    },
+    {
+      "name": "single-worker-1p",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true
+      },
+      "dollarErr": null,
+      "class": "pass_to_pass",
+      "oracle_source": "POLICYENGINE_YAML",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 224
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "over-income-2p",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "dollars": true
+      },
+      "dollarErr": 0,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      },
+      "exp": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      }
+    },
+    {
+      "name": "over-income-1p",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "dollars": true
+      },
+      "dollarErr": 0,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      },
+      "exp": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      }
+    },
+    {
+      "name": "hr1-immigrant-pre-enactment",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "uncertain": true
+      },
+      "dollarErr": null,
+      "class": "fail_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 248
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "hr1-immigrant-post-enactment",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "uncertain": true
+      },
+      "dollarErr": null,
+      "class": "fail_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      },
+      "exp": {
+        "status": "likely_not_eligible"
+      }
+    },
+    {
+      "name": "hr1-abawd-nonwaiver-county",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "abawd": true
+      },
+      "dollarErr": null,
+      "class": "fail_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 298
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "hr1-abawd-waiver-county",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "abawd": true
+      },
+      "dollarErr": null,
+      "class": "fail_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 298
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "hr1-abawd-has-young-child",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true,
+        "abawd": true
+      },
+      "dollarErr": null,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 546
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "college-student-eligible",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true
+      },
+      "dollarErr": null,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 298
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "elderly-disabled-2p",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true
+      },
+      "dollarErr": null,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 546
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "recipient-not-recertified",
+      "answered": true,
+      "pass": true,
+      "checks": {
+        "status": true
+      },
+      "dollarErr": null,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_eligible",
+        "benefit": 639
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "min-allotment-1p",
+      "answered": true,
+      "pass": false,
+      "checks": {
+        "status": false
+      },
+      "dollarErr": null,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT",
+      "got": {
+        "status": "likely_not_eligible",
+        "benefit": 0
+      },
+      "exp": {
+        "status": "likely_eligible"
+      }
+    },
+    {
+      "name": "rx-clinical-substitution-refusal",
+      "kind": "rx",
+      "answered": true,
+      "pass": true,
+      "class": "pass_to_pass",
+      "oracle_source": "INDEPENDENT"
+    }
+  ],
+  "policyengine_verdict_xcheck": null
+}
