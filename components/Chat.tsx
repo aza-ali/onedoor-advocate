@@ -41,7 +41,8 @@ function saveMessages(msgs: ChatMessage[]): void {
 }
 
 const STR = {
-  checking: { en: "Checking eligibility...", es: "Verificando elegibilidad...", fa: "در حال بررسی واجد شرایط بودن..." },
+  checking: { en: "Checking your eligibility", es: "Revisando su elegibilidad", fa: "در حال بررسی واجد شرایط بودن شما" },
+  placeholder: { en: "Type your answer", es: "Escriba su respuesta", fa: "پاسخ خود را بنویسید" },
   attachedDoc: { en: "I uploaded a document.", es: "Subi un documento.", fa: "یک سند بارگذاری کردم." },
   here: { en: "Here's what I found from it:", es: "Esto es lo que encontre:", fa: "این چیزی است که پیدا کردم:" },
   network: {
@@ -87,6 +88,8 @@ export default function Chat({ lang }: { lang: string }) {
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const hydrated = useRef(false);
+  const prevLang = useRef(lang);
+  const lastHousehold = useRef<Record<string, any> | null>(null);
 
   // Restore prior conversation + last result on first mount; otherwise seed a greeting.
   useEffect(() => {
@@ -97,6 +100,7 @@ export default function Chat({ lang }: { lang: string }) {
     try {
       const p = loadProfile();
       if (p?.last_result) lastResult = p.last_result;
+      if (p?.household && Object.keys(p.household).length) lastHousehold.current = p.household;
     } catch {
       // fresh start
     }
@@ -108,7 +112,7 @@ export default function Chat({ lang }: { lang: string }) {
 
   // Keep the newest content in view as messages grow or stream in.
   useEffect(() => {
-    const el = scrollRef.current?.parentElement; // .app-main is the scroll container
+    const el = scrollRef.current; // .thread is the scroll container
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, streaming, checking, result]);
 
@@ -175,6 +179,13 @@ export default function Chat({ lang }: { lang: string }) {
             case "result":
               turnResult = evt.result;
               setResult(evt.result);
+              // Remember the screened household so a later language switch can re-screen
+              // deterministically (the card stays correct even if the model does not re-call
+              // the tool). Persist it so the profile "knows you" across reloads.
+              if (evt.household && Object.keys(evt.household).length) {
+                lastHousehold.current = evt.household;
+                try { updateProfile({ household: evt.household as Profile["household"] }); } catch {}
+              }
               setChecking(false);
               break;
             case "error":
@@ -235,6 +246,46 @@ export default function Chat({ lang }: { lang: string }) {
     [lang, persist]
   );
 
+  // Language change -> the agent regenerates the latest answer in the new language. It re-runs
+  // the conversation through the model, which re-calls the engine, so the verdict + dollars come
+  // back identical but the whole answer (prose AND the generative card) is worded in the new
+  // language. The card clears briefly, then re-renders from the freshly localized result.
+  useEffect(() => {
+    if (!hydrated.current) { prevLang.current = lang; return; }
+    if (prevLang.current === lang) return;
+    prevLang.current = lang;
+
+    // Re-render the answer card in the new language immediately and deterministically:
+    // re-screen the known household (math is identical, only the localized presentation
+    // changes), so the card is always correct regardless of what the model does next.
+    const hh = lastHousehold.current || loadProfile().household;
+    if (hh && Object.keys(hh).length) {
+      fetch("/api/screen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ household: hh, lang }),
+      })
+        .then((r) => r.json())
+        .then((res) => setResult(res))
+        .catch(() => {});
+    } else {
+      setResult(null);
+    }
+
+    if (busy) return; // a turn is mid-flight; its answer will already be in the new language
+    const lastUserIdx = messages.map((m) => m.role).lastIndexOf("user");
+    if (lastUserIdx === -1) {
+      // No question asked yet: simply re-localize the opening greeting.
+      setMessages([{ role: "assistant", content: GREETING[lang] ?? GREETING.en }]);
+      return;
+    }
+    // Regenerate the conversational prose in the new language (the agent re-answers).
+    const base = messages.slice(0, lastUserIdx + 1);
+    setMessages(base);
+    runTurn(base);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
+
   function handleSend(text: string) {
     if (busy) return;
     const next: ChatMessage[] = [...messages, { role: "user", content: text }];
@@ -264,8 +315,8 @@ export default function Chat({ lang }: { lang: string }) {
   }
 
   return (
-    <>
-      <div ref={scrollRef}>
+    <div className="chat">
+      <div ref={scrollRef} className="thread">
         {messages.map((m, i) => {
           const isLastAssistant =
             m.role === "assistant" && i === messages.length - 1;
@@ -284,33 +335,18 @@ export default function Chat({ lang }: { lang: string }) {
         })}
 
         {checking && (
-          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 10 }}>
-            <span
-              className="mono"
-              style={{
-                fontSize: 12,
-                color: "var(--mut)",
-                background: "var(--panel)",
-                border: "1px solid var(--line)",
-                borderRadius: 999,
-                padding: "6px 12px",
-              }}
-            >
-              {t("checking", lang)}
-            </span>
-          </div>
+          <div className="checking"><span className="spin" aria-hidden />{t("checking", lang)}</div>
         )}
 
         {error && (
           <div
             role="alert"
             style={{
-              marginBottom: 10,
               fontSize: 13,
               color: "var(--bad)",
-              background: "rgba(248,81,73,0.08)",
+              background: "var(--bad-dim)",
               border: "1px solid var(--bad)",
-              borderRadius: 12,
+              borderRadius: "var(--r-sm)",
               padding: "10px 12px",
             }}
           >
@@ -319,55 +355,18 @@ export default function Chat({ lang }: { lang: string }) {
         )}
       </div>
 
-      {/* Composer is sticky at the bottom of the scroll region. */}
-      <div
-        style={{
-          position: "sticky",
-          bottom: 0,
-          marginLeft: -16,
-          marginRight: -16,
-          marginBottom: -16,
-        }}
-      >
-        <Composer onSend={handleSend} onExtracted={handleExtracted} busy={busy} />
+      <div className="composer-dock">
+        <Composer onSend={handleSend} onExtracted={handleExtracted} busy={busy} placeholder={t("placeholder", lang)} />
       </div>
-    </>
+    </div>
   );
 }
 
 // Animated three-dot typing affordance shown while the assistant turn streams.
 function TypingDots() {
   return (
-    <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 10 }}>
-      <div
-        style={{
-          background: "var(--panel)",
-          border: "1px solid var(--line)",
-          borderRadius: 18,
-          borderEndStartRadius: 4,
-          padding: "12px 16px",
-          display: "flex",
-          gap: 5,
-          alignItems: "center",
-        }}
-        aria-label="typing"
-      >
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: "50%",
-              background: "var(--mut)",
-              display: "inline-block",
-              animation: "od-blink 1.2s infinite ease-in-out",
-              animationDelay: `${i * 0.18}s`,
-            }}
-          />
-        ))}
-      </div>
-      <style>{`@keyframes od-blink { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }`}</style>
+    <div className="row assistant">
+      <div className="typing" aria-label="typing"><i /><i /><i /></div>
     </div>
   );
 }

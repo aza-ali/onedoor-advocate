@@ -2,40 +2,25 @@
 
 import type { ChatMessage } from "../lib/types";
 
-// One chat bubble. User messages sit on the trailing edge (accent), assistant
-// messages on the leading edge (panel). Alignment follows the document's
-// writing direction, so it flips correctly under RTL (e.g. Farsi).
-export default function Message({ role, content }: ChatMessage) {
-  const isUser = role === "user";
+// Safety net: the model is told to write plain text, but if any Markdown slips through we
+// strip it so it never renders raw in a bubble (the bubbles are plain text, not a md renderer).
+function clean(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")        // **bold** -> bold
+    .replace(/\*(.+?)\*/g, "$1")            // *italic* -> italic
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, "$1") // [text](url) -> text
+    .replace(/^#{1,6}\s+/gm, "")            // # headings
+    .replace(/^\s*[-*]\s+/gm, "")           // - bullets
+    .trim();
+}
 
+// One chat bubble. User on the trailing edge (clay), assistant on the leading edge
+// (warm surface). Alignment follows the document writing direction, so it flips under RTL.
+export default function Message({ role, content }: ChatMessage) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: isUser ? "flex-end" : "flex-start",
-        marginBottom: 10,
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "82%",
-          padding: "10px 14px",
-          borderRadius: 18,
-          // Soften the corner nearest the speaker's edge for a "tail" feel.
-          borderEndStartRadius: isUser ? 18 : 4,
-          borderEndEndRadius: isUser ? 4 : 18,
-          background: isUser ? "var(--accent)" : "var(--panel)",
-          color: isUser ? "#06210d" : "var(--ink)",
-          border: isUser ? "none" : "1px solid var(--line)",
-          fontSize: 15,
-          lineHeight: 1.5,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          textAlign: "start",
-        }}
-      >
-        {content}
-      </div>
+    <div className={`row ${role === "user" ? "user" : "assistant"}`}>
+      <div className="bubble">{role === "assistant" ? clean(content) : content}</div>
     </div>
   );
 }

@@ -46,7 +46,9 @@ export function runScreen(household: Household = {}, lang = "en") {
     uncertain_facts: r.uncertain_facts || [], abawd_risk: r.abawd_risk || null,
     recommendations: recs, fallback: r.status === "needs_more_info" ? r.fallback : undefined,
     navigator_fallback: r.navigator_fallback,
-    presentation: localize(r, LANGS.includes(lang) ? lang : "en"),
+    // localize() builds the full card incl. recommendations, so it must see them (the raw
+    // engine result `r` has no .recommendations — those are computed separately above).
+    presentation: localize({ ...r, recommendations: recs }, LANGS.includes(lang) ? lang : "en"),
     schema_version: "1.0.0",
   };
 }

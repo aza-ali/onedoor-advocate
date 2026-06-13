@@ -49,6 +49,6 @@ export type ChatStreamEvent =
   | { type: "text"; delta: string }
   | { type: "tool_use"; name: string; input: any }
   | { type: "tool_result"; name: string; result: any }
-  | { type: "result"; result: ScreenResult }
+  | { type: "result"; result: ScreenResult; household?: Record<string, any> }
   | { type: "done" }
   | { type: "error"; message: string };
