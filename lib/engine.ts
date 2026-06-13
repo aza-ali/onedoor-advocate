@@ -122,7 +122,9 @@ export const TOOLS = [
 
 export function runTool(name: string, input: any) {
   switch (name) {
-    case "screen_eligibility": return runScreen(input?.household || {}, input?.lang || "en");
+    // Chat tool path: always produce the canonical English card; the chat route translates it
+    // into the person's language afterward (so there is never a double translation).
+    case "screen_eligibility": return runScreen(input?.household || {}, "en");
     case "recommend_stack": return recommend(input?.household || {});
     case "get_rule_citation": return getRuleCitation(input?.rule_id);
     default: return { error: `unknown tool ${name}` };

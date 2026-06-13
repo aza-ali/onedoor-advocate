@@ -29,7 +29,8 @@ export type ScreenResult = {
 export type Profile = {
   schema_version: 1;
   updated_at: string;
-  lang: "en" | "es" | "fa";
+  lang: "en" | "es" | "fa"; // legacy; superseded by `language`
+  language?: ActiveLanguage; // the conversational language the person chose
   household: {
     today?: string; county?: string; household_size?: number;
     monthly_earned_income?: number; monthly_unearned_income?: number;
@@ -50,5 +51,10 @@ export type ChatStreamEvent =
   | { type: "tool_use"; name: string; input: any }
   | { type: "tool_result"; name: string; result: any }
   | { type: "result"; result: ScreenResult; household?: Record<string, any> }
+  | { type: "language"; language: string; dir: "ltr" | "rtl"; ui?: Record<string, string> }
   | { type: "done" }
   | { type: "error"; message: string };
+
+// The active conversation language (set by the model via set_language). `ui` holds the few
+// chrome strings the model translated in realtime (placeholder, checking, send, attach).
+export type ActiveLanguage = { label: string; dir: "ltr" | "rtl"; ui: Record<string, string> };

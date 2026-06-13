@@ -37,6 +37,9 @@ function migrate(raw: any): Profile {
     extractions: Array.isArray(raw.extractions) ? raw.extractions : [],
   };
   if (raw.last_result !== undefined) p.last_result = raw.last_result;
+  if (raw.language && typeof raw.language === "object" && typeof raw.language.label === "string") {
+    p.language = { label: raw.language.label, dir: raw.language.dir === "rtl" ? "rtl" : "ltr", ui: raw.language.ui && typeof raw.language.ui === "object" ? raw.language.ui : {} };
+  }
   return p;
 }
 
@@ -67,6 +70,7 @@ export function saveProfile(p: Profile): void {
 // merged shallowly (members concatenated) and extractions appended.
 export type ProfilePatch = {
   lang?: Profile["lang"];
+  language?: Profile["language"];
   household?: Partial<Profile["household"]>;
   extractions?: Profile["extractions"];
   last_result?: ScreenResult | null;
@@ -77,6 +81,7 @@ export function updateProfile(patch: ProfilePatch): Profile {
   const current = loadProfile();
 
   if (patch.lang) current.lang = patch.lang;
+  if (patch.language) current.language = patch.language;
 
   if (patch.household) {
     const priorMembers = current.household.members || [];
