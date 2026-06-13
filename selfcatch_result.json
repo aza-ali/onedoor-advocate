@@ -1,0 +1,20 @@
+{
+  "fires": [
+    {
+      "fire": "FIRE-1",
+      "kind": "verdict",
+      "producer": "orchestrator",
+      "verifier": "compile-fanout",
+      "caught": 2,
+      "fired": true
+    },
+    {
+      "fire": "FIRE-2",
+      "kind": "voice",
+      "producer": "voice-agent",
+      "verifier": "post-call-grep-gate",
+      "fired": true
+    }
+  ],
+  "allFired": true
+}

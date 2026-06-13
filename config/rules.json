@@ -1,0 +1,114 @@
+{
+  "ruleset_id": "calfresh-ca-2026",
+  "as_of_date": "2026-06-13",
+  "fiscal_year": "FY2026",
+  "_note": "Constants grounded in cited published law. Values verified against the independently-maintained PolicyEngine-US oracle (policyengine_us) on 2026-06-13. Each rule links its exact policy paragraph; see corpus/ for pre-staged source text.",
+  "sources": {
+    "7CFR-273.9": { "title": "7 CFR 273.9 — Income and deductions", "url": "https://www.ecfr.gov/current/title-7/subtitle-B/chapter-II/subchapter-C/part-273/subpart-D/section-273.9" },
+    "7CFR-273.10": { "title": "7 CFR 273.10 — Determining household eligibility and benefit levels", "url": "https://www.ecfr.gov/current/title-7/subtitle-B/chapter-II/subchapter-C/part-273/subpart-D/section-273.10" },
+    "7CFR-273.2j": { "title": "7 CFR 273.2(j) — Categorical eligibility for SNAP", "url": "https://www.ecfr.gov/current/title-7/subtitle-B/chapter-II/subchapter-C/part-273/subpart-B/section-273.2" },
+    "USDA-FNS-COLA-FY2026": { "title": "USDA FNS SNAP Fiscal Year 2026 Cost-of-Living Adjustments", "url": "https://www.fns.usda.gov/snap/allotment/COLA" },
+    "HHS-FPL-2025": { "title": "HHS 2025 Poverty Guidelines (used for FY2026 SNAP)", "url": "https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines" },
+    "CDSS-MPP-63": { "title": "CDSS Manual of Policies and Procedures, Division 63 (CalFresh)", "url": "https://www.cdss.ca.gov/inforesources/calfresh/eligibility-and-issuance-requirements" },
+    "CDSS-ACL-BBCE": { "title": "CDSS All-County Letter — Modified Categorical Eligibility (BBCE), 200% FPL gross / asset-test waiver", "url": "https://www.cdss.ca.gov/inforesources/calfresh" },
+    "HR1-2026": { "title": "H.R.1 (2026) — SNAP immigrant-eligibility & ABAWD work-requirement amendments", "url": "https://www.congress.gov/bill/119th-congress/house-bill/1" }
+  },
+  "max_allotment": {
+    "value": { "1": 298, "2": 546, "3": 785, "4": 994, "5": 1183, "6": 1421, "7": 1571, "8": 1795, "each_additional": 219 },
+    "source_id": "USDA-FNS-COLA-FY2026",
+    "paragraph": "Maximum monthly allotment, 48 contiguous states & DC, effective 2025-10-01 through 2026-09-30.",
+    "effective_from": "2025-10-01", "effective_to": "2026-09-30", "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "min_allotment": {
+    "value": 23,
+    "source_id": "7CFR-273.10",
+    "paragraph": "273.10(e)(2)(ii)(C): eligible 1- and 2-person households receive a minimum benefit (FY2026 = $23).",
+    "effective_from": "2025-10-01", "effective_to": "2026-09-30", "verified_at": "2026-06-13", "confidence": 0.97
+  },
+  "standard_deduction": {
+    "value": { "1": 209, "2": 209, "3": 209, "4": 223, "5": 261, "6_plus": 299 },
+    "source_id": "USDA-FNS-COLA-FY2026",
+    "paragraph": "Standard deduction by household size, 48 contiguous states & DC, FY2026.",
+    "effective_from": "2025-10-01", "effective_to": "2026-09-30", "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "earned_income_deduction_rate": {
+    "value": 0.20,
+    "source_id": "7CFR-273.9",
+    "paragraph": "273.9(d)(2): 20 percent of gross earned income is deducted.",
+    "effective_from": "1977-01-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "excess_shelter_cap": {
+    "value": 744,
+    "source_id": "USDA-FNS-COLA-FY2026",
+    "paragraph": "273.9(d)(6)(ii): excess shelter deduction capped at $744/mo (FY2026) unless a household member is elderly or disabled (then uncapped).",
+    "effective_from": "2025-10-01", "effective_to": "2026-09-30", "verified_at": "2026-06-13", "confidence": 0.98
+  },
+  "standard_utility_allowance": {
+    "value": 663,
+    "source_id": "CDSS-MPP-63",
+    "paragraph": "273.9(d)(6)(iii) + CDSS SUA tables: a household incurring heating/cooling utility costs uses the CA Standard Utility Allowance (FY2026 ~ $663/mo) in place of actual utility costs when computing the shelter deduction.",
+    "effective_from": "2025-10-01", "effective_to": "2026-09-30", "verified_at": "2026-06-13", "confidence": 0.9
+  },
+  "shelter_income_share": {
+    "value": 0.50,
+    "source_id": "7CFR-273.9",
+    "paragraph": "273.9(d)(6)(ii): shelter costs exceeding 50% of income (after other deductions) are the excess shelter deduction.",
+    "effective_from": "1977-01-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "benefit_reduction_rate": {
+    "value": 0.30,
+    "source_id": "7CFR-273.10",
+    "paragraph": "273.10(e)(2)(ii): benefit = max allotment minus 30% of net monthly income.",
+    "effective_from": "1977-01-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "gross_income_limit_federal": {
+    "value": 1.30,
+    "source_id": "7CFR-273.9",
+    "paragraph": "273.9(a)(1): gross monthly income must be at or below 130% of the federal poverty guideline.",
+    "effective_from": "1977-01-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "net_income_limit": {
+    "value": 1.00,
+    "source_id": "7CFR-273.9",
+    "paragraph": "273.9(a)(2): net monthly income must be at or below 100% of the federal poverty guideline.",
+    "effective_from": "1977-01-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "ca_bbce_gross_limit": {
+    "value": 2.00,
+    "source_id": "CDSS-ACL-BBCE",
+    "paragraph": "California Modified Categorical Eligibility (BBCE) under 7 CFR 273.2(j): gross income screen raised to 200% FPL and the resource/asset test waived for most households. This is the CA override that flips working households the federal 130% default rejects.",
+    "effective_from": "2021-01-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.95
+  },
+  "asset_test_waived_ca": {
+    "value": true,
+    "source_id": "CDSS-ACL-BBCE",
+    "paragraph": "Under CA BBCE, the SNAP resource/asset limit is waived for most non-elderly/non-disabled households.",
+    "effective_from": "2021-01-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.95
+  },
+  "fpl_2025_annual": {
+    "value": { "1": 15650, "2": 21150, "3": 26650, "4": 32150, "5": 37650, "6": 43150, "7": 48650, "8": 54150, "each_additional": 5500 },
+    "source_id": "HHS-FPL-2025",
+    "paragraph": "2025 HHS Poverty Guidelines, 48 contiguous states & DC; used for FY2026 SNAP eligibility (monthly = annual / 12).",
+    "effective_from": "2025-01-15", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.99
+  },
+  "hr1_immigrant_eligibility": {
+    "value": { "effective_date": "2025-07-04", "recert_hold_harmless_until": "2025-11-01", "still_eligible_statuses": ["lpr", "cuban_haitian_entrant", "cofa"], "newly_ineligible_statuses": ["refugee", "asylee", "withholding_of_removal", "parolee", "conditional_entrant", "trafficking_victim"] },
+    "source_id": "HR1-2026",
+    "paragraph": "OBBBA (H.R.1, 2025) §10108 limits SNAP-eligible noncitizens to: (1) lawful permanent residents meeting prior rules, (2) Cuban-Haitian entrants, and (3) certain Compact of Free Association (COFA) migrants. It removed eligibility for refugees, asylees, persons granted withholding of removal, parolees, conditional entrants, and trafficking victims. Effective upon enactment 2025-07-04 (new applicants immediately; existing households at recertification; over-issuance hold-harmless through 2025-11-01).",
+    "effective_from": "2025-07-04", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.78,
+    "known_gap": "COMPILE-CORRECTED: an earlier draft used the wrong effective date (2026-04-01) and miscategorized COFA migrants as ineligible. Corrected against USDA FNS OBBB alien-eligibility guidance. The individual-case mapping (e.g. a specific parolee subclass) remains a high-uncertainty seam flagged for live county-line verification, never asserted.",
+    "source_url_override": "https://www.fns.usda.gov/snap/obbb-alien-eligibility"
+  },
+  "hr1_abawd_work_requirement": {
+    "value": { "effective_date": "2026-06-01", "min_hours_per_week": 20, "age_min": 18, "age_max": 64, "dependent_age_threshold": 14, "time_limit_months": 3 },
+    "source_id": "HR1-2026",
+    "paragraph": "H.R.1 (2026) expands ABAWD time limits effective 2026-06-01: able-bodied adults 18-64 without a dependent under age 14 must work/participate >=20 hours/week or lose benefits after 3 months, unless they live in a USDA-approved waiver county.",
+    "effective_from": "2026-06-01", "effective_to": null, "verified_at": "2026-06-13", "confidence": 0.82
+  },
+  "abawd_waiver_counties_ca": {
+    "value": ["Alpine", "Colusa", "Imperial", "Merced", "Monterey", "Plumas", "Tulare"],
+    "source_id": "HR1-2026",
+    "paragraph": "California ABAWD time-limit waiver counties, effective through 2026-10-31. Residents of these counties are exempt from the ABAWD work requirement during the waiver window.",
+    "effective_from": "2026-06-01", "effective_to": "2026-10-31", "verified_at": "2026-06-13", "confidence": 0.85
+  }
+}

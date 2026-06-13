@@ -1,0 +1,14 @@
+{
+  "name": "onedoor-california",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "eval": "node scripts/eval.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "js-yaml": "^4.2.0"
+  }
+}

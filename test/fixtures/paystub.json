@@ -1,0 +1,13 @@
+{
+  "_note": "ONE synthetic, clearly-labeled pay-stub fixture for the doc-ingest demo. No real PII. Opus 4.8 vision reads the image directly when a key is present; this is the pre-captured backstop parse used offline. Extracted fields are shown for human confirm/correct before they drive the engine; doc PII is NOT persisted.",
+  "document_label": "SYNTHETIC pay stub — Maria G. (composite persona, not a real person)",
+  "raw_text": "ACME GROCERY INC.  Pay Statement\nEmployee: Maria G.    Pay Period: 05/16/2026 - 05/31/2026\nGross pay this period: $1,750.00   Pay frequency: SEMI-MONTHLY\nFederal tax: $0.00  CA SDI: $19.25  Net pay: $1,684.50\nDependents claimed: 2 (children, ages 6 and 9)\nHome address: San Francisco, CA",
+  "expected_parse": {
+    "county": "San Francisco",
+    "household_size": 3,
+    "monthly_earned_income": 3500,
+    "members": [{ "age": 34 }, { "age": 6 }, { "age": 9 }],
+    "extraction_notes": "Semi-monthly gross $1,750 x 2 = $3,500/mo. Employee + 2 dependents = household of 3.",
+    "needs_confirmation": true
+  }
+}

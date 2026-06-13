@@ -1,0 +1,7 @@
+node_modules/
+.dev.vars
+.wrangler/
+__pycache__/
+*.pyc
+.DS_Store
+doc/secrets*

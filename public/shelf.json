@@ -1,0 +1,101 @@
+[
+  {
+    "program": "Medi-Cal",
+    "need_group": "Health",
+    "one_line": "You may also qualify — low income often means free or low-cost health coverage for you and your family.",
+    "why_short": "Medi-Cal covers doctor visits, prescriptions, dental, and mental health at little or no cost if your household income is below the limit.",
+    "citation": {
+      "source_id": "dhcs.ca.gov/medi-cal",
+      "note": "California Department of Health Care Services — Medi-Cal eligibility overview"
+    },
+    "next_step": "Apply online at coveredca.com or call 1-800-300-1506 (Covered California)"
+  },
+  {
+    "program": "WIC (Women, Infants & Children)",
+    "need_group": "Food",
+    "one_line": "You may also qualify — pregnant, postpartum, or raising a child under 5 and income-eligible means free healthy food benefits.",
+    "why_short": "WIC provides vouchers for nutritious foods, breastfeeding support, and health referrals for young families with low to moderate incomes.",
+    "citation": {
+      "source_id": "cdph.ca.gov/wic",
+      "note": "California Department of Public Health — WIC program overview"
+    },
+    "next_step": "Find your local WIC office at cdph.ca.gov/wic or call 1-888-942-9675"
+  },
+  {
+    "program": "CalEITC & Young Child Tax Credit",
+    "need_group": "Money",
+    "one_line": "You may also qualify — filing taxes with low earned income can unlock a refundable California credit paid directly to you.",
+    "why_short": "CalEITC and the Young Child Tax Credit are refundable state tax credits for working Californians with low income, including those with an ITIN.",
+    "citation": {
+      "source_id": "ftb.ca.gov/caleitc",
+      "note": "California Franchise Tax Board — CalEITC and YCTC eligibility"
+    },
+    "next_step": "File your California state taxes at ftb.ca.gov or get free filing help at MyFreeTaxes.com"
+  },
+  {
+    "program": "CARE / FERA (Utility Discount Programs)",
+    "need_group": "Utilities",
+    "one_line": "You may also qualify — income-based discounts can cut your electric and gas bill significantly every month.",
+    "why_short": "CARE gives a monthly discount on electric and gas service; FERA offers an additional reduction for households of three or more that narrowly miss CARE income limits.",
+    "citation": {
+      "source_id": "cpuc.ca.gov/care",
+      "note": "California Public Utilities Commission — CARE and FERA program details"
+    },
+    "next_step": "Apply through your utility provider or visit cpuc.ca.gov/care"
+  },
+  {
+    "program": "California LifeLine",
+    "need_group": "Utilities",
+    "one_line": "You may also qualify — qualifying for any public assistance program can get you discounted phone or internet service.",
+    "why_short": "California LifeLine reduces monthly costs for home phone and wireless service for income-eligible residents or those already enrolled in programs like Medi-Cal or CalFresh.",
+    "citation": {
+      "source_id": "californialifeline.com",
+      "note": "California LifeLine Program — eligibility and enrollment"
+    },
+    "next_step": "Check eligibility and apply at californialifeline.com or call 1-866-272-0349"
+  },
+  {
+    "program": "Free & Reduced-Price School Meals",
+    "need_group": "Kids",
+    "one_line": "You may also qualify — school-age children in income-eligible households can eat breakfast and lunch at school at no cost.",
+    "why_short": "The National School Lunch and Breakfast Programs provide free or reduced-price meals at school each day for children whose household income meets federal guidelines.",
+    "citation": {
+      "source_id": "cde.ca.gov/ls/nu/sn/lunch.asp",
+      "note": "California Department of Education — school meal program information"
+    },
+    "next_step": "Contact your child's school office or visit cde.ca.gov to find the application"
+  },
+  {
+    "program": "SUN Bucks (Summer EBT)",
+    "need_group": "Kids",
+    "one_line": "You may also qualify — families with school-age kids may automatically receive summer grocery benefits when school is out.",
+    "why_short": "SUN Bucks provides an EBT card loaded with grocery benefits each summer for children who qualify for free or reduced-price school meals, with no separate application required for most families.",
+    "citation": {
+      "source_id": "cdss.ca.gov/sun-bucks",
+      "note": "California Department of Social Services — SUN Bucks Summer EBT overview"
+    },
+    "next_step": "Visit cdss.ca.gov/sun-bucks or call 1-877-847-3663 to check your child's status"
+  },
+  {
+    "program": "Rx Cost Pathways (Rxassist / Covered CA / Medi-Cal Rx)",
+    "need_group": "Health",
+    "one_line": "You may also qualify — several programs can lower or eliminate out-of-pocket prescription costs based on your income and coverage.",
+    "why_short": "California residents can access free or deeply discounted prescriptions through Medi-Cal's pharmacy benefit, manufacturer patient assistance programs, and nonprofit Rx discount networks.",
+    "citation": {
+      "source_id": "rxassist.org",
+      "note": "RxAssist — patient assistance program directory; DHCS Medi-Cal pharmacy benefit"
+    },
+    "next_step": "Search manufacturer assistance programs at rxassist.org or talk to your pharmacist about GoodRx or Medi-Cal Rx"
+  },
+  {
+    "program": "Housing Choice Vouchers (Section 8)",
+    "need_group": "Housing",
+    "one_line": "You may also qualify — rental assistance vouchers can help cover the gap between what you can afford and market rent.",
+    "why_short": "The Housing Choice Voucher program helps low-income renters afford stable housing by paying a portion of rent directly to landlords; waitlists are managed by local housing authorities.",
+    "citation": {
+      "source_id": "hcd.ca.gov/grants-funding/active-funding/housing-choice-vouchers",
+      "note": "California Department of Housing and Community Development — Housing Choice Vouchers"
+    },
+    "next_step": "Find your local housing authority waitlist at hud.gov/program_offices/public_indian_housing/pha/contacts or call 1-800-955-2232"
+  }
+]
