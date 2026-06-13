@@ -1,3 +1,28 @@
+# Firebase deploy — READY (only the browser connect remains)
+
+Everything scriptable is DONE for project **`onedoor-advocate`**:
+- ✅ Project created + **Blaze billing linked** (freed a slot by unlinking `strovu` from billing — strovu is intact and recoverable)
+- ✅ APIs enabled: App Hosting, Cloud Run, Cloud Build, Secret Manager, Developer Connect, Artifact Registry
+- ✅ Secret **`anthropic-api-key`** created in Secret Manager (version 1, value never printed; length verified = 108)
+- ✅ `apphosting.yaml` references it correctly; GitHub repo `aza-ali/onedoor-advocate` is ready
+
+## The ONE step left (needs your browser, one time)
+```bash
+firebase apphosting:backends:create --project onedoor-advocate
+```
+In the flow: pick a region (e.g. `us-central1`), connect the GitHub repo **aza-ali/onedoor-advocate** on branch **main** via Developer Connect (browser OAuth), and let it do the first rollout.
+
+## After the backend exists, run (I can do these for you):
+```bash
+# grant the backend's service account read access to the secret
+gcloud secrets add-iam-policy-binding anthropic-api-key --project onedoor-advocate \
+  --member="serviceAccount:firebase-app-hosting-compute@onedoor-advocate.iam.gserviceaccount.com" \
+  --role=roles/secretmanager.secretAccessor
+# future deploys: just `git push origin main`. Verify:  curl https://<backend-url>/healthz
+```
+
+---
+
 # Firebase deploy — CURRENT STATUS (updated)
 
 ## Done automatically
