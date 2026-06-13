@@ -1,20 +1,20 @@
 {
   "ruleset": "calfresh-ca-2026",
   "today": "2026-06-13",
-  "broken_mode": null,
+  "broken_mode": "categorical",
   "summary": {
     "n_total": 16,
     "independent_oracle_n": 14,
-    "independent_oracle_precision": 1,
+    "independent_oracle_precision": 0.786,
     "policyengine_consistency_n": 2,
     "policyengine_consistency": 1,
     "coverage_on_answered": 1,
-    "mean_abs_dollar_error": 0,
-    "max_abs_dollar_error": 0,
-    "fail_to_pass": "6/6",
-    "pass_to_pass": "11/11",
-    "fail_to_pass_pct": 1,
-    "pass_to_pass_regressions": 0,
+    "mean_abs_dollar_error": 57.75,
+    "max_abs_dollar_error": 231,
+    "fail_to_pass": "4/6",
+    "pass_to_pass": "10/11",
+    "fail_to_pass_pct": 0.667,
+    "pass_to_pass_regressions": 1,
     "lambda": {
       "value": 0.65,
       "split_seed": 42,
@@ -30,18 +30,18 @@
     {
       "name": "flip-01",
       "answered": true,
-      "pass": true,
+      "pass": false,
       "checks": {
-        "status": true,
-        "dollars": true,
-        "flip": true
+        "status": false,
+        "dollars": false,
+        "flip": false
       },
-      "dollarErr": 0,
+      "dollarErr": 231,
       "class": "fail_to_pass",
       "oracle_source": "INDEPENDENT",
       "got": {
-        "status": "likely_eligible",
-        "benefit": 231
+        "status": "likely_not_eligible",
+        "benefit": 0
       },
       "exp": {
         "status": "likely_eligible",
@@ -51,17 +51,17 @@
     {
       "name": "flip-02-2person",
       "answered": true,
-      "pass": true,
+      "pass": false,
       "checks": {
-        "status": true,
-        "flip": true
+        "status": false,
+        "flip": false
       },
       "dollarErr": null,
       "class": "fail_to_pass",
       "oracle_source": "INDEPENDENT",
       "got": {
-        "status": "likely_eligible",
-        "benefit": 208
+        "status": "likely_not_eligible",
+        "benefit": 0
       },
       "exp": {
         "status": "likely_eligible"
@@ -315,16 +315,16 @@
     {
       "name": "min-allotment-1p",
       "answered": true,
-      "pass": true,
+      "pass": false,
       "checks": {
-        "status": true
+        "status": false
       },
       "dollarErr": null,
       "class": "pass_to_pass",
       "oracle_source": "INDEPENDENT",
       "got": {
-        "status": "likely_eligible",
-        "benefit": 45
+        "status": "likely_not_eligible",
+        "benefit": 0
       },
       "exp": {
         "status": "likely_eligible"

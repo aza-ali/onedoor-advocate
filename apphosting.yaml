@@ -1,0 +1,31 @@
+# Firebase App Hosting backend config (runs on Cloud Run).
+# Schema: https://firebase.google.com/docs/app-hosting/configure
+#
+# SECURITY: ANTHROPIC_API_KEY is a Secret Manager reference, NEVER a plaintext value.
+# It is injected into the Cloud Run runtime environment only (availability: RUNTIME),
+# so it never reaches the build step or the client bundle. The non-secret model id is
+# plain text. Do not add the API key value to this file.
+
+runConfig:
+  # Demo-scale ceiling; raise for production traffic.
+  minInstances: 0
+  maxInstances: 2
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  # Secret reference. The value lives in Google Secret Manager under the secret
+  # name `anthropic-api-key` (create it with `gcloud secrets create`, see DEPLOY.md).
+  # availability: RUNTIME -> server-only, read via process.env at request time in
+  # lib/anthropic.ts. It is NOT present at BUILD, so it cannot be inlined into any asset.
+  - variable: ANTHROPIC_API_KEY
+    secret: anthropic-api-key
+    availability:
+      - RUNTIME
+
+  # Non-secret model id. Plaintext value is fine. Read on the server (lib/anthropic.ts).
+  - variable: ANTHROPIC_MODEL
+    value: claude-opus-4-8
+    availability:
+      - RUNTIME

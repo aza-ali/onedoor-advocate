@@ -1,4 +1,4 @@
-# session_log.md — verify.sh run 2026-06-13 13:30:51 PDT
+# session_log.md — verify.sh run 2026-06-13 14:32:02 PDT
 - ✓ A1 no benefit arithmetic outside src/engine
 - ✓ A2 all 12 engine rules carry cited paragraph+source
 B1(a) PolicyEngine consistency (verdict): 100% on N=2 (informational, NOT the gate)
@@ -21,7 +21,7 @@ GATE: GREEN ✓ (B2>=0.90 on N>=10, coverage>=0.70, heroes answered+correct, F2P
 - ✓ E1 tools/list returns 4 tools, each with input+output schema
 - ✓ E2 tools/call screen_eligibility: structuredContent valid, 12 citations (citation-less FAILS)
 - ✓ E3 agent-card 200, 4 skill ids match the 4 tool names
-- ✓ E4 single-source schema: MCP + A2A serve the SAME outputSchema (one file, 1 importers; one edit breaks both)
+- ✓ E4 single-source schema: MCP + A2A serve the SAME outputSchema (one file, 2 importers; one edit breaks both)
 - ✓ E7 Rx: Medicaid member -> copay card SUPPRESSED with reason (anti-kickback)
 - ✓ E7' GoodRx not exposed via MCP/A2A, not cached
 - ✓ E7 rx output carries non_clinical:true
