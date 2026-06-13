@@ -9,3 +9,6 @@ doc/secrets*
 .env*.local
 .next/
 .firebase/
+.oracle-venv/
+*.tsbuildinfo
+next-env.d.ts
