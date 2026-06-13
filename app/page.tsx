@@ -1,44 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Chat from "../components/Chat";
-import LangSwitcher from "../components/LangSwitcher";
+import ThemeToggle from "../components/ThemeToggle";
 import { loadProfile, updateProfile } from "../lib/profile";
+import type { ActiveLanguage } from "../lib/types";
 
-const DISCLAIMER: Record<string, string> = {
-  en: "This is an eligibility estimate, not a benefits decision or legal advice. Official determinations are made by your county or state agency.",
-  es: "Esto es una estimacion de elegibilidad, no una decision de beneficios ni asesoria legal. Las determinaciones oficiales las hace su agencia del condado o del estado.",
-  fa: "این یک برآورد واجد شرایط بودن است، نه تصمیم رسمی یا مشاوره حقوقی. تصمیم نهایی توسط اداره شهرستان یا ایالت شما گرفته می‌شود.",
-};
+const DEFAULT_LANG: ActiveLanguage = { label: "English", dir: "ltr", ui: {} };
+
+// A small disclaimer shown under the composer. (The card carries the full, translated one.)
+const FALLBACK_DISCLAIMER =
+  "This is an eligibility estimate, not a benefits decision or legal advice. Official determinations are made by your county or state agency.";
+
+function GlobeIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18" />
+    </svg>
+  );
+}
 
 export default function Page() {
-  const [lang, setLang] = useState<string>("en");
+  const [language, setLanguage] = useState<ActiveLanguage>(DEFAULT_LANG);
 
-  // Hydrate language from the saved profile after mount (localStorage is client-only).
+  // Hydrate the saved conversational language after mount (localStorage is client-only).
   useEffect(() => {
     try {
       const p = loadProfile();
-      if (p?.lang) setLang(p.lang);
+      if (p?.language?.label) setLanguage(p.language);
     } catch {
-      // no saved profile yet; keep the default
+      // no saved language yet
     }
   }, []);
 
-  // Reflect the active language on the document (direction + lang) and persist it.
+  // Reflect text direction + lang on the document whenever the language changes.
   useEffect(() => {
     const el = document.documentElement;
-    el.lang = lang;
-    el.dir = lang === "fa" ? "rtl" : "ltr";
-  }, [lang]);
+    el.dir = language.dir;
+    el.lang = language.label.toLowerCase().startsWith("english") ? "en" : "";
+  }, [language]);
 
-  function handleLangChange(next: string) {
-    setLang(next);
-    try {
-      updateProfile({ lang: next as "en" | "es" | "fa" });
-    } catch {
-      // persistence is best-effort; the UI still switches
-    }
-  }
+  // The model set the language mid-conversation: store it and apply it.
+  const handleLanguage = useCallback((next: ActiveLanguage) => {
+    setLanguage(next);
+    try { updateProfile({ language: next }); } catch { /* best-effort */ }
+  }, []);
 
   return (
     <div className="app">
@@ -47,25 +54,21 @@ export default function Page() {
           <span className="mark" aria-hidden>1</span>
           One <b>Door</b> Advocate
         </div>
-        <LangSwitcher lang={lang} onChange={handleLangChange} />
+        <div className="header-tools">
+          <span className="lang-chip" title="Tell me in chat to switch languages anytime">
+            <GlobeIcon />
+            {language.label}
+          </span>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="app-main">
-        <Chat lang={lang} />
+        <Chat language={language} onLanguage={handleLanguage} />
       </main>
 
       <footer className="app-footer">
-        <p
-          style={{
-            margin: 0,
-            fontSize: 11,
-            lineHeight: 1.45,
-            color: "var(--mut)",
-            textAlign: "center",
-          }}
-        >
-          {DISCLAIMER[lang] ?? DISCLAIMER.en}
-        </p>
+        <p className="disclaimer">{language.ui?.disclaimer || FALLBACK_DISCLAIMER}</p>
       </footer>
     </div>
   );
