@@ -1,0 +1,69 @@
+﻿Team Name: One Door Fully Stacked
+
+
+Team Members: Aza Ali, Teresa, Chen, Siv Sambasivam
+
+
+Project Description*
+One Door is an AI benefits advocate for Californians who qualify for help but get stopped by confusing rules, language barriers, documents, and phone calls.
+
+
+Every year about 2.7 million eligible Californians receive no CalFresh (SNAP) benefits, leaving roughly $3.5 billion in already-appropriated federal food dollars unclaimed. A common cause: screeners run the federal default rule (130% of the poverty line) and never apply California's higher 200% limit, so a working family that actually qualifies is told "no."
+
+
+We built a working CalFresh eligibility advocate that pairs a deterministic, cited benefit engine with Opus 4.8 for the human layer. It takes a household's situation in any language, computes a cited CalFresh verdict and dollar amount, explains it in the person's own language (every digit and citation stays byte-identical), reads pay stubs, surfaces adjacent programs, and refuses to invent a dollar figure for any program it did not fully compute.
+
+
+Our demo runs the highest-stakes path: a California household that looks ineligible under federal rules but is eligible under California's. One Door flips the verdict, shows the estimated benefit ($231/month), cites every rule that got there, translates the guidance, and preps the person for their county interview, all without inventing amounts for programs it did not verify.
+
+
+Core principle: use AI for the messy human parts (language, documents, fact triage, advocacy, navigation) and keep benefit math deterministic, testable, and auditable. Final verification gate: 30 passed / 0 failed, with independent-oracle accuracy of 100% on 14 hand-worked cases.
+
+
+Public Project Demo Video (1-minute demo video showcasing what you built)*
+[ADD LINK: 1-minute demo video]
+
+
+How was Opus 4.8 used in your project?*
+We used Opus 4.8 as the reasoning, grounding, and verification layer around a deterministic CalFresh rules engine, not as a chatbot wrapper.
+
+
+The design separates what must be exact from what needs intelligence. The rules engine computes every eligibility verdict and every dollar figure; Opus handles everything human around it: turning household stories and pay-stub photos into structured facts, detecting missing or uncertain information, grounding each explanation in a cited policy paragraph, translating guidance into any language (including right-to-left Farsi) while keeping every digit, dollar sign, percentage, and citation verbatim, verifying facts through voice-call read-back, and recommending next steps without inventing unsupported amounts.
+
+
+The most impressive part: Opus did not just help us build, it caught failures. During a parallel compile of the rule corpus, Opus sub-agents found and corrected two real draft-rule errors before final green (a wrong household-size-8 allotment and a wrong H.R.1 immigrant-eligibility effective date). On a live county-line call, it rejected a misheard "29 hours" because that phrase was not actually in the transcript, then accepted the corrected "20 hours" only after read-back confirmation. Both self-catches are recorded in trace.jsonl, with the verifying agent's id distinct from the producer's.
+
+
+The result is AI-native but auditable: deterministic benefit math, cited explanations, any-language support, transcript-backed verification, no fabricated estimates for uncomputed programs, and a final gate of 30 passed / 0 failed.
+
+
+Public GitHub Repository*
+https://github.com/aza-ali/onedoor-advocate
+
+
+Live Demo URL (deployed production application link)*
+https://onedoor--onedoor-advocate.us-central1.hosted.app
+
+
+Link to Session Log
+For Claude.ai: use Share (top right) and paste the link. For Claude Code: run /export session-log.md, commit it to the repo, and link it here. (Repo already includes session_log.md (the verify.sh run) and trace.jsonl (the orchestration + self-catch trace) as supporting evidence.)
+
+
+How did you orchestrate Claude's work?*
+We treated Claude as an orchestrator over a verifiable spine, not a single chat. Three layers:
+
+
+1) A locked rubric and ruleset as the contract. Before building we wrote RULESET.md (every CalFresh rule carrying a source id, the exact cited paragraph, and a verified_at date) and a machine-gradable rubric. "Done" was defined as a green check, not a claim: verify.sh runs ~30 end-to-end assertions and emits RUBRIC_GREEN only when all pass (engine math, the federal-to-California eligibility flip, the H.R.1 date seams, the MCP/A2A single-source schema, anonymous mode, and no applicant PII persisted).
+
+
+2) A parallel multi-agent compile with self-verification. We ran a workflow (.claude/workflows/onedoor.js) that fanned out one Opus agent per CalFresh rule section (12 sections). Each agent grounded its rule in the exact cited law, wrote a corpus provenance file, and returned a structured-output result with self-timestamped start/end (6 Opus agents genuinely overlapping, about 500k tokens). A separate black-box verifier agent then checked each compiled rule against a build-time oracle (PolicyEngine-US plus hand-worked CBPP/CDSS cases) and caught the two real draft-rule errors above.
+
+
+3) Producer/verifier separation everywhere it mattered. The agent that writes a value is never the agent that confirms it (verified by distinct agent ids in trace.jsonl). The voice path has the same shape: a deterministic post-call grep gate checks any spoken fact against the verbatim transcript before it is allowed into the engine.
+
+
+Files in the repo: RULESET.md (the contract), .claude/workflows/onedoor.js (the compile fan-out), verify.sh (the green gate), scripts/eval.mjs (the accuracy harness), trace.jsonl + session_log.md (orchestration + self-catch evidence), and EVAL_REPORT.md (the accuracy report).
+
+
+Do you have any feedback on Opus 4.8?
+Opus was most impressive as an orchestrator: decomposing work, grounding facts, catching mistakes, and turning an ambiguous problem into a verifiable product. We would love a shared cloud session where multiple teammates can log into the same workspace, seed files and repos together, and spin up agents collaboratively - a hybrid of cloud Claude, Claude Code, and multiplayer build mode.
