@@ -11,6 +11,7 @@ type Props = {
   attachLabel?: string;
   sendLabel?: string;
   lang?: string;
+  leftSlot?: React.ReactNode;
 };
 
 const MAX_TEXTAREA_PX = 132;
@@ -18,7 +19,7 @@ const MAX_TEXTAREA_PX = 132;
 // Sticky bottom composer: a growable textarea, a thumb-sized send button, and an attach
 // toggle that reveals the document Uploader. One-handed phone use (large tap targets,
 // safe-area inset, >=16px font to avoid iOS focus-zoom).
-export default function Composer({ onSend, onExtracted, busy, placeholder = "Type your answer", attachLabel = "Attach a document", sendLabel = "Send message", lang = "en" }: Props) {
+export default function Composer({ onSend, onExtracted, busy, placeholder = "Type your answer", attachLabel = "Attach a document", sendLabel = "Send message", lang = "en", leftSlot }: Props) {
   const [text, setText] = useState("");
   const [showUploader, setShowUploader] = useState(false);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
@@ -49,6 +50,7 @@ export default function Composer({ onSend, onExtracted, busy, placeholder = "Typ
         <div className="upanel"><Uploader onExtracted={handleExtracted} lang={lang} /></div>
       )}
       <div className="composer">
+        {leftSlot}
         <button type="button" className="icon-btn" aria-label={attachLabel} aria-pressed={showUploader} onClick={() => setShowUploader((s) => !s)}>
           <span aria-hidden style={{ fontSize: 22, lineHeight: 1 }}>{showUploader ? "×" : "+"}</span>
         </button>

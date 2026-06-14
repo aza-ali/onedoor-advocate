@@ -39,6 +39,33 @@ every digit, `$`, `%`, URL, phone number, and program name kept verbatim, so **t
 citations stay byte-identical across languages** and only the words change. The first thing the
 advocate does is ask which language you would like to use.
 
+## Voice (phase 2)
+
+Voice is a thin input/output layer over the **same** text chat loop, not a second brain.
+Gemini is a dumb transducer: speech-to-text in, verbatim text-to-speech out. It never reasons,
+never generates content, and never identifies itself. Claude Opus 4.8 stays the only brain and
+the only identity, and the grounding contract above is unchanged: all eligibility math and
+citations still come from the engine via Claude's tool-use loop.
+
+The pipeline runs in one direction only:
+
+1. The user speaks.
+2. **Gemini STT** transcribes the audio to text.
+3. **Claude Opus 4.8** reasons over that text and calls the engine tools (the same plain-text
+   chat loop is reused, not forked).
+4. **Gemini TTS** voices Claude's exact words, verbatim.
+5. The app speaks Claude's reply aloud.
+
+Hard rules: Gemini never produces content of its own and never says who it is; Claude is the sole
+reasoner and the sole identity; voice reuses the existing chat loop rather than forking it.
+
+Voice is **optional**. Without `GEMINI_API_KEY` the text chat works exactly as before, and the
+voice routes degrade to a graceful **503**.
+
+**Security:** two keys, two scopes, both server-only. `ANTHROPIC_API_KEY` is the brain;
+`GEMINI_API_KEY` is scoped strictly to STT/TTS and never reaches the client. On Firebase it lives
+in **Google Secret Manager** as `gemini-api-key`.
+
 ## Design
 
 A calm, confident interface in the color of trust (blue), with full **light and dark mode**

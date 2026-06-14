@@ -102,6 +102,49 @@ availability is **RUNTIME only**, the value is absent during the build step, so 
 baked into any compiled output. At runtime `lib/anthropic.ts` reads it via
 `process.env.ANTHROPIC_API_KEY` on the server. The browser never sees it.
 
+### 2e. Voice layer (Gemini) secret
+
+Phase-2 adds an optional **voice layer** (speech-to-text and text-to-speech) powered by Gemini.
+Voice is **optional**: the text app works fully without it. If you skip this subsection, the app
+deploys and runs normally; only the voice features are unavailable. The Gemini key is wired
+exactly like `anthropic-api-key`, as a second server-only secret in Secret Manager.
+
+`GEMINI_API_KEY` is **server-only**. Its scope is **STT/TTS only**. It is never placed in the
+client bundle and never goes anywhere near the eligibility logic.
+
+Create the secret from `.env.local` without printing the value to the terminal, history, or the
+repo. Set `PID` to your GCP project id first:
+
+```bash
+PID=<PROJECT_ID>
+printf '%s' "$(grep -oE '^GEMINI_API_KEY=.*' .env.local | cut -d= -f2- | tr -d '"'"'"'\r\n')" \
+  | gcloud secrets create gemini-api-key --project "$PID" --replication-policy=automatic --data-file=-
+```
+
+If the secret already exists, add a new version instead (same no-print pattern):
+
+```bash
+printf '%s' "$(grep -oE '^GEMINI_API_KEY=.*' .env.local | cut -d= -f2- | tr -d '"'"'"'\r\n')" \
+  | gcloud secrets versions add gemini-api-key --project "$PID" --data-file=-
+```
+
+Grant the same App Hosting backend service account read access (the same SA used for
+`anthropic-api-key`). Replace `<PROJECT_ID>` with your GCP project id:
+
+```bash
+gcloud secrets add-iam-policy-binding gemini-api-key \
+  --member="serviceAccount:firebase-app-hosting-compute@<PROJECT_ID>.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+```
+
+`apphosting.yaml` already references `gemini-api-key` as a **RUNTIME** secret (same shape as the
+`ANTHROPIC_API_KEY` block above), so once the secret and the IAM binding exist, a git push rolls
+it out: App Hosting fetches the latest version and injects it into the Cloud Run runtime
+environment only. Because availability is RUNTIME only, the value is absent during the build, so
+it cannot be baked into any compiled output. The server reads it via
+`process.env.GEMINI_API_KEY` for STT/TTS only; the browser never sees it, and it never touches
+the deterministic eligibility path.
+
 ---
 
 ## 3. The key never leaks (and how to verify)

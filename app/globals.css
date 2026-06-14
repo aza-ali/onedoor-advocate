@@ -296,3 +296,91 @@ a { color: var(--accent); text-underline-offset: 2px; }
 .ud-spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+/* ── VOICE LAYER (Phase-2) ─────────────────────────────────────────────────────
+ * VoiceButton + Chat voice wiring: mic toggle, recording pulse, busy spinner,
+ * status caption, and the tappable "speaking" equalizer indicator.
+ * Tokens only; RTL-safe (logical props); honors prefers-reduced-motion.
+ */
+.voice-btn {
+  flex: none;
+  width: 44px; height: 44px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-dim);
+  display: grid; place-items: center;
+  position: relative;
+  transition: transform var(--spring-fast), background 0.2s, color 0.2s, border-color 0.2s;
+}
+.voice-btn:hover { color: var(--accent); border-color: var(--accent); }
+.voice-btn:active { transform: scale(0.9); }
+
+/* recording — filled accent with a pulsing ring */
+.voice-btn.recording {
+  background: var(--accent);
+  color: var(--accent-on);
+  border-color: var(--accent);
+  animation: voice-pulse 1.4s var(--ease) infinite;
+}
+@keyframes voice-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 8px color-mix(in oklab, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 0%, transparent); }
+}
+
+/* busy — small spinner overlay (reuses @keyframes spin) */
+.voice-btn.busy { color: transparent; }
+.voice-btn.busy::after {
+  content: "";
+  position: absolute;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklab, var(--accent) 30%, transparent);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+/* status caption under the button */
+.voice-status {
+  font-size: 12px;
+  color: var(--ink-mut);
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* speaking indicator — tappable bubble with a 3-bar equalizer */
+.speaking-indicator {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px;
+  border-radius: var(--r-full);
+  background: var(--accent-soft);
+  color: var(--accent-on-soft);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.speaking-indicator .eq { display: inline-flex; align-items: center; gap: 2px; height: 14px; }
+.speaking-indicator .eq span {
+  display: block;
+  width: 3px; height: 100%;
+  border-radius: var(--r-full);
+  background: currentColor;
+  transform-origin: center;
+  animation: eq 0.9s var(--ease) infinite;
+}
+.speaking-indicator .eq span:nth-child(2) { animation-delay: 0.18s; }
+.speaking-indicator .eq span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+
+/* respect reduced-motion: kill the looping voice animations */
+@media (prefers-reduced-motion: reduce) {
+  .voice-btn.recording { animation: none; }
+  .speaking-indicator .eq span { animation: none; transform: scaleY(0.7); }
+}

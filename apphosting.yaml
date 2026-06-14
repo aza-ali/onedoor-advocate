@@ -24,6 +24,16 @@ env:
     availability:
       - RUNTIME
 
+  # Secret reference. The value lives in Google Secret Manager under the secret
+  # name `gemini-api-key` (create it with `gcloud secrets create`, see DEPLOY.md).
+  # Voice I/O only (Gemini speech-to-text + verbatim text-to-speech). availability:
+  # RUNTIME -> server-only, read via process.env at request time. It is NOT present
+  # at BUILD, so it cannot be inlined into any asset. Optional; text chat works without it.
+  - variable: GEMINI_API_KEY
+    secret: gemini-api-key
+    availability:
+      - RUNTIME
+
   # Non-secret model id. Plaintext value is fine. Read on the server (lib/anthropic.ts).
   - variable: ANTHROPIC_MODEL
     value: claude-opus-4-8

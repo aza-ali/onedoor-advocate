@@ -112,6 +112,24 @@ KFA=$(curl -s -m8 -XPOST "$BASE/api/screen" -H 'content-type: application/json' 
 KFLAG=$(echo "$SCR" | jq_get "len(d.get('uncertain_facts',[]))>=0 and bool(d['navigator_fallback'])")
 [ "$KFLAG" = "True" ] && ok "K2/K3 canonical output: verdict + verified fact + next step + navigator fallback + audit refs" || no "K2/K3 output"
 
+echo "== Section V: voice layer (graceful without GEMINI_API_KEY) =="
+# V1: transcribe degrades to a JSON 503 (or 200 with a key) — never 500/000/hang
+VT_CODE=$(curl -s -m8 -o /tmp/onedoor_v1.json -w '%{http_code}' -XPOST "$BASE/api/voice/transcribe" -H 'content-type: application/json' -d '{"audio_base64":"AAA","mime":"audio/webm"}')
+VT_ERR=$(jq_get "d.get('error','')" < /tmp/onedoor_v1.json)
+if [ "$VT_CODE" = "503" ]; then echo "$VT_ERR" | grep -qi "GEMINI" && ok "V1 /api/voice/transcribe graceful 503 + JSON error mentions GEMINI (no key)" || no "V1 transcribe 503 but error missing GEMINI ($VT_ERR)"
+elif [ "$VT_CODE" = "200" ]; then ok "V1 /api/voice/transcribe 200 (Gemini key present)"
+else no "V1 transcribe non-graceful HTTP $VT_CODE (must be 503/200, not 500/000/hang)"; fi
+# V2: speak degrades to a JSON 503 (or 200 with a key) — never 500/000
+VS_CODE=$(curl -s -m8 -o /tmp/onedoor_v2.json -w '%{http_code}' -XPOST "$BASE/api/voice/speak" -H 'content-type: application/json' -d '{"text":"hello"}')
+VS_ERR=$(jq_get "d.get('error','')" < /tmp/onedoor_v2.json)
+if [ "$VS_CODE" = "503" ]; then [ -n "$VS_ERR" ] && ok "V2 /api/voice/speak graceful 503 + JSON error (no key)" || no "V2 speak 503 but no JSON error field"
+elif [ "$VS_CODE" = "200" ]; then ok "V2 /api/voice/speak 200 (Gemini key present)"
+else no "V2 speak non-graceful HTTP $VS_CODE (must be 503/200, not 500/000)"; fi
+# V3: no Gemini key leaks to the client bundle; transducer is server-only
+VLEAK=$(grep -rln "GEMINI_API_KEY" .next/static 2>/dev/null | head -1)
+[ -z "$VLEAK" ] && ok "V3a GEMINI_API_KEY not in client bundle (.next/static)" || no "V3a GEMINI_API_KEY leaked to client bundle: $VLEAK"
+grep -q 'import "server-only"' lib/gemini.ts && ok "V3b lib/gemini.ts is server-only (transducer never ships to client)" || no "V3b lib/gemini.ts missing import \"server-only\""
+
 echo ""
 echo "==================== $PASS passed, $FAIL failed ===================="
 echo "" >> "$LOG"; echo "## $PASS passed, $FAIL failed" >> "$LOG"

@@ -6,6 +6,8 @@ import { loadProfile, updateProfile } from "../lib/profile";
 import Message from "./Message";
 import Composer from "./Composer";
 import Outputs from "./Outputs";
+import VoiceButton from "./VoiceButton";
+import { speak, stopSpeaking } from "../lib/voice-client";
 
 // A welcoming, language-first greeting. The model takes over in the person's language as soon
 // as it knows it (via set_language). Kept warm and multilingual so anyone feels invited.
@@ -66,7 +68,9 @@ export default function Chat({ language, onLanguage }: { language: ActiveLanguag
   const [streaming, setStreaming] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [speaking, setSpeaking] = useState(false);
 
+  const speakNextRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const hydrated = useRef(false);
   const lastHousehold = useRef<Record<string, any> | null>(null);
@@ -87,6 +91,9 @@ export default function Chat({ language, onLanguage }: { language: ActiveLanguag
     } catch { /* fresh */ }
     setMessages(restored ?? [{ role: "assistant", content: GREETING }]);
   }, []);
+
+  // Stop any in-flight Claude speech when the chat unmounts so audio does not outlive the view.
+  useEffect(() => () => stopSpeaking(), []);
 
   // Keep newest content in view.
   useEffect(() => {
@@ -188,7 +195,24 @@ export default function Chat({ language, onLanguage }: { language: ActiveLanguag
         });
       } finally {
         setStreaming(false); setChecking(false); setBusy(false);
-        setMessages((prev) => { persist(prev, turnResult); return prev; });
+        let finalAssistantText = "";
+        setMessages((prev) => {
+          persist(prev, turnResult);
+          // Find the last non-empty assistant message (the completed turn text).
+          for (let i = prev.length - 1; i >= 0; i--) {
+            if (prev[i].role === "assistant" && prev[i].content.trim()) { finalAssistantText = prev[i].content; break; }
+          }
+          return prev;
+        });
+        if (speakNextRef.current) {
+          speakNextRef.current = false;
+          const toSpeak = finalAssistantText.trim();
+          if (toSpeak) {
+            stopSpeaking();
+            setSpeaking(true);
+            speak(toSpeak).catch(() => {}).finally(() => setSpeaking(false));
+          }
+        }
       }
     },
     [persist, onLanguage, relocalizeCard, language]
@@ -196,9 +220,19 @@ export default function Chat({ language, onLanguage }: { language: ActiveLanguag
 
   function handleSend(text: string) {
     if (busy) return;
+    // A new user turn cancels any in-flight Claude speech so audio does not overlap.
+    stopSpeaking(); setSpeaking(false);
     const next: ChatMessage[] = [...messages, { role: "user", content: text }];
     setMessages(next);
     runTurn(next);
+  }
+
+  // Voice input is just a typed message via a different transport: same brain, same handleSend.
+  // We arm speakNextRef so Claude's written reply gets voiced back once the turn settles.
+  function handleVoiceTranscript(text: string) {
+    if (!text.trim() || busy) return;
+    speakNextRef.current = true;
+    handleSend(text);
   }
 
   function handleExtracted(fields: Record<string, any>) {
@@ -230,6 +264,17 @@ export default function Chat({ language, onLanguage }: { language: ActiveLanguag
 
         {checking && <div className="checking" role="status" aria-live="polite"><span className="spin" aria-hidden />{chrome("checking")}</div>}
 
+        {speaking && (
+          <button
+            type="button"
+            className="speaking-indicator"
+            onClick={() => { stopSpeaking(); setSpeaking(false); }}
+            aria-label="Stop speaking"
+          >
+            Speaking
+          </button>
+        )}
+
         {error && (
           <div role="alert" style={{ fontSize: 13, color: "var(--bad)", background: "var(--bad-soft)", border: "1px solid var(--bad)", borderRadius: "var(--r-sm)", padding: "10px 12px" }}>
             {error}
@@ -238,7 +283,16 @@ export default function Chat({ language, onLanguage }: { language: ActiveLanguag
       </div>
 
       <div className="composer-dock">
-        <Composer onSend={handleSend} onExtracted={handleExtracted} busy={busy} lang={uploaderLang(language.label)} placeholder={chrome("placeholder")} attachLabel={chrome("attach")} sendLabel={chrome("send")} />
+        <Composer
+          onSend={handleSend}
+          onExtracted={handleExtracted}
+          busy={busy}
+          lang={uploaderLang(language.label)}
+          placeholder={chrome("placeholder")}
+          attachLabel={chrome("attach")}
+          sendLabel={chrome("send")}
+          leftSlot={<VoiceButton onTranscript={handleVoiceTranscript} lang={language.label} disabled={busy || speaking} />}
+        />
       </div>
     </div>
   );
