@@ -1,4 +1,4 @@
-# session_log.md — verify.sh run 2026-06-13 17:32:49 PDT
+# session_log.md — verify.sh run 2026-06-13 18:12:27 PDT
 - ✓ A1 no benefit arithmetic outside src/engine
 - ✓ A2 all 12 engine rules carry cited paragraph+source
 B1(a) PolicyEngine consistency (verdict): 100% on N=2 (informational, NOT the gate)
@@ -38,8 +38,8 @@ SELF-CATCH: BOTH FIRE events fired ✓ (FIRE-1 verdict + FIRE-2 voice), verifier
 - ✓ I3 honest concurrency: 6 Opus agents overlapped on the compile (not a hand-wavy 14)
 - ✓ K1 EN==FA: dollars + citations BYTE-IDENTICAL across languages (Farsi RTL), only presentation differs
 - ✓ K2/K3 canonical output: verdict + verified fact + next step + navigator fallback + audit refs
-- ✓ V1 /api/voice/transcribe graceful 503 + JSON error mentions GEMINI (no key)
-- ✓ V2 /api/voice/speak graceful 503 + JSON error (no key)
+- ✓ V1 /api/voice/transcribe 200 (Gemini key present)
+- ✓ V2 /api/voice/speak 200 (Gemini key present)
 - ✓ V3a GEMINI_API_KEY not in client bundle (.next/static)
 - ✓ V3b lib/gemini.ts is server-only (transducer never ships to client)
 
